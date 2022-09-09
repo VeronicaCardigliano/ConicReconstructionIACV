@@ -1,22 +1,18 @@
 clear;
 clc;
 
-var = 0;
+var = 1;
 
 if var == 1
-    image1 = imread('Photo/image1.jpg');
-    image2 = imread('Photo/image2.jpg');
-    
-    imgGray1 = rgb2gray(image1);
-    imgGray2 = rgb2gray(image2);
+    image1 = imread('Photo/set4/image2.jpg');
+    image2 = imread('Photo/set4/image5.jpg');
     
     calibrationImages = imageDatastore('Photo/calibrazione');
     
-    %{
     cameraParams = calibrationFunction(calibrationImages);
     [P1, P2] = findExtrinsicParams(cameraParams);
-    %}
-    intrinsic = findIntrinsic(calibrationImages);
+    
+    %intrinsic = findIntrinsic(calibrationImages);
     
     P1 = P1.';
     P2 = P2.';
@@ -27,8 +23,8 @@ if var == 1
             P2(i,j) = P2(i,j) / P2(3,4);
         end
     end
-
-    imshow(imgGray1);
+    
+    imshow(image1);
     hold on;
     
     [x, y] = getpts;
@@ -36,8 +32,8 @@ if var == 1
     C1 = getConicMatrix(x, y);
 
     hold off;
-    
-    imshow(imgGray2);
+
+    imshow(image2);
     hold on;
     
     [x, y] = getpts;
@@ -70,24 +66,46 @@ else
 
     Plane2 = [-0.196589 -0.812143 0.239359 1.0].';
     
-    Point1 = [1000/21 0 0 1].';
-    Point2 = [0 25/4 0 1].';
-    Point3 = [0 0 250/23 1].';
+    Point1 = [748/21 1 1 1].';
+    Point2 = [769/21 1 71/92 1].';
+    Point3 = [748/21 2 -17/23 1].';
 
     M1 = [Point1 Point2 Point3];
     
     C1 = M1.' * Q1 * M1;
 
-    Point1 = [5.0867546 0 0 1].';
-    Point2 = [0 1.23131025 0 1].';
-    Point3 = [0 0 -4.177824941 1].';
+    x = sym('x',[1 4]).';
+    assume(x ~= 0);
+
+    eqns = Plane2.' * x == 0;
+
+    point = solve(eqns, x);
+    point = [point.x1 point.x2 point.x3 point.x4];
+
+    Point1 = point.';
+    Point2 = [point(1)+1 point(1,2) point(1,3)+(-Plane2(1,1))/Plane2(3,1) 1].';
+    Point3 = [point(1) point(1,2)+1 point(1,3)+(-Plane2(2,1))/Plane2(3,1) 1].';
     
 
-    M2 = [Point1 Point2 Point3];
+    M2 = double([Point1 Point2 Point3]);
     
     C2 = M2.' * Q2 * M2;
 
+    for i=1:3
+        for j=1:3
+            C1(i,j) = C1(i,j)/C1(3,3);
+            C2(i,j) = C2(i,j)/C2(3,3);
+        end
+    end
+
+    drawconic( C1, [ -100 100 -100 100 ], [ 0.1 0.1 ], 'b-' ), grid;
+    drawconic( C2, [ -100 100 -100 100 ], [ 0.1 0.1 ], 'b-' ), grid; 
+
 end
+
+%draw Conics
+drawConic(C1);
+drawConic(C2);
 
 A = P1.' * C1 * P1;
 B = P2.' * C2 * P2;
@@ -108,9 +126,9 @@ a4_lam = det(C);
 
 I_a4 = coeffs(a4_lam);
 
-delta = I_a4(2)^2 - 4*I_a4(3)*I_a4(1);
+delta = I_a4(3)^2 - 4*I_a4(4)*I_a4(2);
 
-lambda = -I_a4(2) / (2*I_a4(3));
+lambda = -I_a4(3) / (2*I_a4(4));
 
 C = A + lambda*B;
 
