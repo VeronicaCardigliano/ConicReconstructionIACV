@@ -102,7 +102,7 @@ else
     drawconic( C2, [ -100 100 -100 100 ], [ 0.1 0.1 ], 'b-' ), grid; 
 
 end
-
+%%
 %draw Conics
 drawConic(C1);
 drawConic(C2);
@@ -131,29 +131,29 @@ delta = I_a4(3)^2 - 4*I_a4(4)*I_a4(2);
 lambda = -I_a4(3) / (2*I_a4(4));
 
 C = A + lambda*B;
-
+%%
 a_lam_coeffs = subs(a_lam_coeffs, lam, lambda);
 
-equation = mu^2 + a_lam_coeffs(4)*mu + a_lam_coeffs(3) == 0;
-
-sols = solve(equation, mu);
-
-eigenValue1 = sols(1);
-eigenValue2 = sols(2);
+e = eig(C);
 
 v1 = sym('v1', [1 4]).';
 assume(v1 ~= 0);
 v2 = sym('v2', [1 4]).';
-assume(v1 ~= 0);
+assume(v2 ~= 0);
 
 bho1 = C - eigenValue1*I;
 bho2 = C - eigenValue2*I;
 
+v1 = null(bho1);
+v2 = null(bho2);
+
+%{
 eqns1 = [bho1(1,:)*v1 == 0, bho1(2,:)*v1 == 0, bho1(3,:)*v1 == 0, bho1(4,:)*v1 == 0];
 v1 = solve(eqns1, v1);
 
 eqns2 = [bho1(1,:)*v1 == 0, bho1(2,:)*v1 == 0, bho1(3,:)*v1 == 0, bho1(4,:)*v1 == 0];
 v2 = solve(eqns2, v2);
+%}
 
 Plane1 = sqrt(eigenValue1) * v1 + sqrt(eigenValue2) * v2;
 Plane2 = sqrt(eigenValue1) * v1 - sqrt(eigenValue2) * v2;
