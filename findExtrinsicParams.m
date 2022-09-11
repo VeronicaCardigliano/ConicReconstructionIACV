@@ -72,7 +72,7 @@ end
 
 hold off;
 %}
-
+[firstImg,newOrigin] = undistortImage(firstImg,cameraParams,'OutputView','full');
 [imagePoints,~] = detectCheckerboardPoints(firstImg);
 
 figure(1);
@@ -84,6 +84,9 @@ for i=1:length(imagePoints)
 end
 
 hold off;
+
+imagePoints = [imagePoints(:,1) + newOrigin(1), ...
+             imagePoints(:,2) + newOrigin(2)];
 
 boardSize = [10 14];
 
@@ -135,10 +138,21 @@ plot(projectedPoints(:,1),projectedPoints(:,2),'g*-');
 legend('Projected points');
 hold off
 
+errorX = 0;
+errorY = 0;
+for i=1:length(imagePoints)
+    errorX = errorX + abs(imagePoints(i,1) - projectedPoints(i, 1));
+    errorY = errorY + abs(imagePoints(i,2) - projectedPoints(i, 2));
+end
+
+meanError = errorX/length(imagePoints) + errorY/length(imagePoints);
+
 P1 = cameraMatrix(cameraParams,rotationMatrix,translationVector);
 
-[imagePoints,~] = detectCheckerboardPoints(secondImg);
+[secondImg,newOrigin] = undistortImage(secondImg,cameraParams,'OutputView','full');
+[imagePoints, boardSize] = detectCheckerboardPoints(secondImg);
 
+figure(2);
 imshow(secondImg);
 hold on;
 
@@ -148,13 +162,10 @@ end
 
 hold off;
 
+imagePoints = [imagePoints(:,1) + newOrigin(1), ...
+             imagePoints(:,2) + newOrigin(2)];
+
 worldPoints = generateCheckerboardPoints(boardSize,squareSize);
-
-pointsToNan = [14];
-
-for i=1:length(pointsToNan)
-    imagePoints(pointsToNan(i),:) = nan;
-end
 
 i = 1;
 len = length(imagePoints);
@@ -179,6 +190,15 @@ hold on
 plot(projectedPoints(:,1),projectedPoints(:,2),'g*-');
 legend('Projected points');
 hold off
+
+errorX = 0;
+errorY = 0;
+for i=1:length(imagePoints)
+    errorX = errorX + abs(imagePoints(i,1) - projectedPoints(i, 1));
+    errorY = errorY + abs(imagePoints(i,2) - projectedPoints(i, 2));
+end
+
+meanError = errorX/length(imagePoints) + errorY/length(imagePoints);
 
 P2 = cameraMatrix(cameraParams,rotationMatrix,translationVector);
 end
