@@ -3,11 +3,12 @@ clc;
 
 var = 1;
 
+
 if var == 1
-    image1 = imread('Photo/set4/image2.jpg');
-    image2 = imread('Photo/set4/image5.jpg');
+    image1 = imread('Photo\set4\image2.jpg');
+    image2 = imread('Photo\set4\image5.jpg');
     
-    calibrationImages = imageDatastore('Photo/calibrazione');
+    calibrationImages = imageDatastore('Photo/calibrazione2');
     
     cameraParams = calibrationFunction(calibrationImages);
     [P1, P2] = findExtrinsicParams(cameraParams);
@@ -30,7 +31,7 @@ if var == 1
     
     [x, y] = getpts;
     scatter(x, y, 100, 'filled');
-    C1 = getConicMatrix(x, y);
+    C1 = leastSquaresConic(x, y);
 
     hold off;
 
@@ -39,8 +40,10 @@ if var == 1
     
     [x, y] = getpts;
     scatter(x, y, 100, 'filled');
+
+
     
-    C2 = getConicMatrix(x, y);
+    C2 = leastSquaresConic(x, y);
     
     hold off;
       
