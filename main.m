@@ -16,14 +16,14 @@ if var == 1
     
     P1 = P1.';
     P2 = P2.';
-%{
+
     for i=1:3
         for j=1:4
             P1(i,j) = P1(i,j) / P1(3,4);
             P2(i,j) = P2(i,j) / P2(3,4);
         end
     end
-%}
+
     
     imshow(image1);
     hold on;
@@ -136,6 +136,10 @@ C = A + lambda*B;
 a_lam_coeffs = subs(a_lam_coeffs, lam, lambda);
 
 e = eig(C);
+
+%equation = mu^2 + a_lam_coeffs(4)*mu + a_lam_coeffs(3) == 0;
+
+%sols = solve(equation, mu);
 
 v1 = sym('v1', [1 4]).';
 assume(v1 ~= 0);
