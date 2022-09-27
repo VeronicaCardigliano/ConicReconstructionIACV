@@ -1,14 +1,14 @@
 clear;
 clc;
 
-var = 1;
+var = 0;
 
 
 if var == 1
-    image1 = imread('Photo\set4\image2.jpg');
-    image2 = imread('Photo\set4\image5.jpg');
+    image1 = imread('Photo/set4/image2.jpg');
+    image2 = imread('Photo/set4/image5.jpg');
     
-    calibrationImages = imageDatastore('Photo/calibrazione2');
+    calibrationImages = imageDatastore('Photo/calibrazione');
     
     cameraParams = calibrationFunction(calibrationImages);
     [P1, P2] = findExtrinsicParams(cameraParams);
@@ -102,8 +102,8 @@ else
         end
     end
 
-    drawconic( C1, [ -100 100 -100 100 ], [ 0.1 0.1 ], 'b-' ), grid;
-    drawconic( C2, [ -100 100 -100 100 ], [ 0.1 0.1 ], 'b-' ), grid; 
+    %drawconic( C1, [ -100 100 -100 100 ], [ 0.1 0.1 ], 'b-' ), grid;
+    %drawconic( C2, [ -100 100 -100 100 ], [ 0.1 0.1 ], 'b-' ), grid; 
 
 end
 %%
@@ -149,8 +149,8 @@ assume(v1 ~= 0);
 v2 = sym('v2', [1 4]).';
 assume(v2 ~= 0);
 
-bho1 = C - eigenValue1*I;
-bho2 = C - eigenValue2*I;
+bho1 = C - e(1)*I;
+bho2 = C - e(2)*I;
 
 v1 = null(bho1);
 v2 = null(bho2);
@@ -163,8 +163,8 @@ eqns2 = [bho1(1,:)*v1 == 0, bho1(2,:)*v1 == 0, bho1(3,:)*v1 == 0, bho1(4,:)*v1 =
 v2 = solve(eqns2, v2);
 %}
 
-Plane1 = sqrt(eigenValue1) * v1 + sqrt(eigenValue2) * v2;
-Plane2 = sqrt(eigenValue1) * v1 - sqrt(eigenValue2) * v2;
+Plane1 = sqrt(e(1)) * v1 + sqrt(e(2)) * v2;
+Plane2 = sqrt(e(1)) * v1 - sqrt(e(2)) * v2;
 
 
 
