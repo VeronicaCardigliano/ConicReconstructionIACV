@@ -1,7 +1,7 @@
 clear;
 clc;
 
-var = 0;
+var = 1;
 
 
 if var == 1
@@ -138,7 +138,7 @@ C = A + lambda*B;
 %%
 a_lam_coeffs = subs(a_lam_coeffs, lam, lambda);
 
-e = eig(C);
+e = eigs(eval(C));
 
 %equation = mu^2 + a_lam_coeffs(4)*mu + a_lam_coeffs(3) == 0;
 
