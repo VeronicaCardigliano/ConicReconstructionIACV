@@ -108,41 +108,25 @@ else
 end
 %%
 %draw Conics
-drawConic(C1);
-drawConic(C2);
+drawConic(C1, image1);
+drawConic(C2, image2);
 
 A = P1.' * C1 * P1;
 B = P2.' * C2 * P2;
 
-syms lam mu;
-
-C = A + lam*B;
-
-I = eye(4);
-
-Char_matrix = det(C - mu*I);
-
-a_lam_coeffs = coeffs(Char_matrix, mu);
-
-a3_lam = a_lam_coeffs(2);
-
-a4_lam = det(C);
-
-I_a4 = coeffs(a4_lam);
-
-delta = I_a4(3)^2 - 4*I_a4(4)*I_a4(2);
-
-lambda = -I_a4(3) / (2*I_a4(4));
+lambda = computeLambda(A, B);
 
 C = A + lambda*B;
+
+save saved_variables C1 C2 C P1 P2 -mat
 %%
-a_lam_coeffs = subs(a_lam_coeffs, lam, lambda);
 
 e = eigs(eval(C));
 
 %equation = mu^2 + a_lam_coeffs(4)*mu + a_lam_coeffs(3) == 0;
 
 %sols = solve(equation, mu);
+I = eye(4);
 
 v1 = sym('v1', [1 4]).';
 assume(v1 ~= 0);
