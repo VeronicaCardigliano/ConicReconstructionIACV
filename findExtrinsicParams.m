@@ -1,92 +1,26 @@
-function [P1, P2] = findExtrinsicParams(cameraParams)
+function [P1, P2] = findExtrinsicParams(cameraParams, display)
+
 firstImg = imread('Photo\set4\image2.jpg');
 secondImg = imread('Photo\set4\image5.jpg');
-%{
-img3 = imread('Photo\set4\image3.jpg');
-img4 = imread('Photo\set4\image4.jpg');
-img5 = imread('Photo\set4\image5.jpg');
 
+intrinsics = cameraParams.Intrinsics;
 
-%1
+[firstImg,newOrigin] = undistortImage(firstImg,intrinsics,OutputView='full');
 [imagePoints,~] = detectCheckerboardPoints(firstImg);
 
-figure(1);
-imshow(firstImg);
-hold on;
-
-for i=1:length(imagePoints)
-    plot(imagePoints(i,1), imagePoints(i,2), 'r+', 'MarkerSize', 10, 'LineWidth', 1);
+if display == 1
+    figure(1);
+    imshow(firstImg);
+    hold on;
+    
+    for i=1:length(imagePoints)
+        plot(imagePoints(i,1), imagePoints(i,2), 'r+', 'MarkerSize', 10, 'LineWidth', 1);
+    end
+    
+    hold off;
 end
 
-hold off;
-
-%2
-[imagePoints,~] = detectCheckerboardPoints(secondImg);
-
-figure(2);
-imshow(secondImg);
-hold on;
-
-for i=1:length(imagePoints)
-    plot(imagePoints(i,1), imagePoints(i,2), 'r+', 'MarkerSize', 10, 'LineWidth', 1);
-end
-
-hold off;
-
-%3
-[imagePoints,~] = detectCheckerboardPoints(img3);
-
-figure(3);
-imshow(img3);
-hold on;
-
-for i=1:length(imagePoints)
-    plot(imagePoints(i,1), imagePoints(i,2), 'r+', 'MarkerSize', 10, 'LineWidth', 1);
-end
-
-hold off;
-
-%4
-[imagePoints,~] = detectCheckerboardPoints(img4);
-
-figure(4);
-imshow(img4);
-hold on;
-
-for i=1:length(imagePoints)
-    plot(imagePoints(i,1), imagePoints(i,2), 'r+', 'MarkerSize', 10, 'LineWidth', 1);
-end
-
-hold off;
-
-%5
-[imagePoints,~] = detectCheckerboardPoints(img5);
-
-figure(5);
-imshow(img5);
-hold on;
-
-for i=1:length(imagePoints)
-    plot(imagePoints(i,1), imagePoints(i,2), 'r+', 'MarkerSize', 10, 'LineWidth', 1);
-end
-
-hold off;
-%}
-[firstImg,newOrigin] = undistortImage(firstImg,cameraParams,'OutputView','full');
-[imagePoints,~] = detectCheckerboardPoints(firstImg);
-
-figure(1);
-imshow(firstImg);
-hold on;
-
-for i=1:length(imagePoints)
-    plot(imagePoints(i,1), imagePoints(i,2), 'r+', 'MarkerSize', 10, 'LineWidth', 1);
-end
-
-hold off;
-
-imagePoints = [imagePoints(:,1) + newOrigin(1), ...
-             imagePoints(:,2) + newOrigin(2)];
+imagePoints = imagePoints+newOrigin;
 
 boardSize = [10 14];
 
@@ -102,14 +36,16 @@ for i=1:length(pointsToEliminate)
     imagePoints(pointsToEliminate(i)+1-i,:) = [];
 end
 
-imshow(firstImg);
-hold on;
-
-for i=1:length(imagePoints)
-    plot(imagePoints(i,1), imagePoints(i,2), 'r+', 'MarkerSize', 10, 'LineWidth', 1);
+if display == 1
+    imshow(firstImg);
+    hold on;
+    
+    for i=1:length(imagePoints)
+        plot(imagePoints(i,1), imagePoints(i,2), 'r+', 'MarkerSize', 10, 'LineWidth', 1);
+    end
+    
+    hold off;
 end
-
-hold off;
 
 squareSize = 26; 
 worldPoints = generateCheckerboardPoints(boardSize,squareSize);
@@ -127,43 +63,38 @@ while i <= len
 
 end
 
-[rotationMatrix,translationVector] = extrinsics(imagePoints, worldPoints, cameraParams);
+camExtrinsics = estimateExtrinsics(imagePoints,worldPoints,intrinsics);
 
-zCoord = zeros(size(worldPoints,1),1);
-worldPoints = [worldPoints zCoord];
-
-projectedPoints = worldToImage(cameraParams,rotationMatrix,translationVector,worldPoints);
-hold on
-plot(projectedPoints(:,1),projectedPoints(:,2),'g*-');
-legend('Projected points');
-hold off
-
-errorX = 0;
-errorY = 0;
-for i=1:length(imagePoints)
-    errorX = errorX + abs(imagePoints(i,1) - projectedPoints(i, 1));
-    errorY = errorY + abs(imagePoints(i,2) - projectedPoints(i, 2));
+if display == 1
+    zCoord = zeros(size(worldPoints,1),1);
+    worldPoints = [worldPoints zCoord];
+    
+    projectedPoints = world2img(worldPoints, camExtrinsics, intrinsics);
+    
+    hold on
+    plot(projectedPoints(:,1),projectedPoints(:,2),'g*-');
+    legend('Projected points');
+    hold off
 end
 
-meanError = errorX/length(imagePoints) + errorY/length(imagePoints);
-
-P1 = cameraMatrix(cameraParams,rotationMatrix,translationVector);
+P1 = cameraProjection(intrinsics,camExtrinsics);
 
 [secondImg,newOrigin] = undistortImage(secondImg,cameraParams,'OutputView','full');
 [imagePoints, boardSize] = detectCheckerboardPoints(secondImg);
 
-figure(2);
-imshow(secondImg);
-hold on;
-
-for i=1:length(imagePoints)
-    plot(imagePoints(i,1), imagePoints(i,2), 'r+', 'MarkerSize', 10, 'LineWidth', 1);
+if display == 1
+    figure(2);
+    imshow(secondImg);
+    hold on;
+    
+    for i=1:length(imagePoints)
+        plot(imagePoints(i,1), imagePoints(i,2), 'r+', 'MarkerSize', 10, 'LineWidth', 1);
+    end
+    
+    hold off;
 end
 
-hold off;
-
-imagePoints = [imagePoints(:,1) + newOrigin(1), ...
-             imagePoints(:,2) + newOrigin(2)];
+imagePoints = imagePoints+newOrigin;
 
 worldPoints = generateCheckerboardPoints(boardSize,squareSize);
 
@@ -180,25 +111,19 @@ while i <= len
 
 end
 
-[rotationMatrix,translationVector] = extrinsics(imagePoints, worldPoints, cameraParams);
+camExtrinsics = estimateExtrinsics(imagePoints,worldPoints,intrinsics);
 
-zCoord = zeros(size(worldPoints,1),1);
-worldPoints = [worldPoints zCoord];
-
-projectedPoints = worldToImage(cameraParams,rotationMatrix,translationVector,worldPoints);
-hold on
-plot(projectedPoints(:,1),projectedPoints(:,2),'g*-');
-legend('Projected points');
-hold off
-
-errorX = 0;
-errorY = 0;
-for i=1:length(imagePoints)
-    errorX = errorX + abs(imagePoints(i,1) - projectedPoints(i, 1));
-    errorY = errorY + abs(imagePoints(i,2) - projectedPoints(i, 2));
+if display == 1
+    zCoord = zeros(size(worldPoints,1),1);
+    worldPoints = [worldPoints zCoord];
+    
+    projectedPoints = world2img(worldPoints, camExtrinsics, intrinsics);
+    
+    hold on
+    plot(projectedPoints(:,1),projectedPoints(:,2),'g*-');
+    legend('Projected points');
+    hold off
 end
 
-meanError = errorX/length(imagePoints) + errorY/length(imagePoints);
-
-P2 = cameraMatrix(cameraParams,rotationMatrix,translationVector);
+P2 = cameraProjection(intrinsics, camExtrinsics);
 end

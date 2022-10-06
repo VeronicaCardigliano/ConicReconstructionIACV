@@ -2,7 +2,8 @@ clear;
 clc;
 
 var = 1;
-
+calculateCameraParams = 0;
+display = 0;
 
 if var == 1
     image1 = imread('Photo/set4/image2.jpg');
@@ -10,21 +11,16 @@ if var == 1
     
     calibrationImages = imageDatastore('Photo/calibrazione');
     
-    cameraParams = calibrationFunction(calibrationImages);
-    [P1, P2] = findExtrinsicParams(cameraParams);
-    
-    %intrinsic = findIntrinsic(calibrationImages);
-    
-    P1 = P1.';
-    P2 = P2.';
-
-    for i=1:3
-        for j=1:4
-            P1(i,j) = P1(i,j) / P1(3,4);
-            P2(i,j) = P2(i,j) / P2(3,4);
-        end
+    if calculateCameraParams == 1
+        cameraParams = calibrationFunction(calibrationImages);
+        save saved_variables cameraParams -mat
+    else
+        load saved_cameraParameters.mat;
     end
 
+    [P1, P2] = findExtrinsicParams(cameraParams, display);
+    
+    %intrinsic = findIntrinsic(calibrationImages);
     
     imshow(image1);
     hold on;
@@ -40,12 +36,14 @@ if var == 1
     
     [x, y] = getpts;
     scatter(x, y, 100, 'filled');
-
-
     
     C2 = leastSquaresConic(x, y);
     
     hold off;
+
+    %draw Conics
+    drawConic(C1, image1);
+    drawConic(C2, image2);
       
 else
     P1 = [1.393757 -0.244708 -14.170794 368.0;
@@ -107,9 +105,6 @@ else
 
 end
 %%
-%draw Conics
-drawConic(C1, image1);
-drawConic(C2, image2);
 
 A = P1.' * C1 * P1;
 B = P2.' * C2 * P2;
@@ -121,17 +116,12 @@ C = A + lambda*B;
 save saved_variables C1 C2 C P1 P2 -mat
 %%
 
-e = eigs(eval(C));
+e = eigs(C);
 
 %equation = mu^2 + a_lam_coeffs(4)*mu + a_lam_coeffs(3) == 0;
 
 %sols = solve(equation, mu);
 I = eye(4);
-
-v1 = sym('v1', [1 4]).';
-assume(v1 ~= 0);
-v2 = sym('v2', [1 4]).';
-assume(v2 ~= 0);
 
 bho1 = C - e(1)*I;
 bho2 = C - e(2)*I;
@@ -149,6 +139,31 @@ v2 = solve(eqns2, v2);
 
 Plane1 = sqrt(e(1)) * v1 + sqrt(e(2)) * v2;
 Plane2 = sqrt(e(1)) * v1 - sqrt(e(2)) * v2;
+
+projection_centre1 = null(P1);
+projection_centre2 = null(P2);
+
+side1_plane1 = projection_centre1.' * Plane1;
+side2_plane1 = projection_centre2.' * Plane1;
+
+side1_plane2 = projection_centre1.' * Plane2;
+side2_plane2 = projection_centre2.' * Plane2;
+
+if side1_plane1*side2_plane1 > 0
+    Conic = conePlaneIntersection(A, Plane1);
+else 
+    if side1_plane2 * side2_plane2 > 0
+        Conic = conePlaneIntersection(A, Plane2);
+    else
+        %give an error message
+    end
+end
+
+%display result
+
+
+
+
 
 
 
