@@ -1,7 +1,7 @@
 clear;
 clc;
 
-var = 1;
+var = 0;
 calculateCameraParams = 0;
 display = 0;
 
@@ -116,7 +116,7 @@ C = A + lambda*B;
 save saved_variables C1 C2 C P1 P2 -mat
 %%
 
-e = eigs(C);
+e = eig(C);
 
 %equation = mu^2 + a_lam_coeffs(4)*mu + a_lam_coeffs(3) == 0;
 
@@ -137,9 +137,9 @@ eqns2 = [bho1(1,:)*v1 == 0, bho1(2,:)*v1 == 0, bho1(3,:)*v1 == 0, bho1(4,:)*v1 =
 v2 = solve(eqns2, v2);
 %}
 
-Plane1 = sqrt(e(1)) * v1 + sqrt(e(2)) * v2;
-Plane2 = sqrt(e(1)) * v1 - sqrt(e(2)) * v2;
-
+Plane1 = sqrt(e(1)) * v1 + sqrt(-e(2)) * v2;
+Plane2 = sqrt(e(1)) * v1 - sqrt(-e(2)) * v2;
+%%
 projection_centre1 = null(P1);
 projection_centre2 = null(P2);
 
