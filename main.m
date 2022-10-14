@@ -59,49 +59,67 @@ else
         -0.00023 -0.00034 -0.0014 0.011;
         0.0058 0.0033 0.011 -0.038];
 
-    Plane1 = [-0.021 -0.16 -0.092 1.0].';
+    Plane1_paper = [-0.021 -0.16 -0.092 1.0].';
 
     Q2 = [1.0 0.0 0.0 -9.0;
         0.0 1.0 0.0 -2.0;
         0.0 0.0 1.0 -10.0;
         -9.0 -2.0 -10.0 85.0];
 
-    Plane2 = [-0.196589 -0.812143 0.239359 1.0].';
+
+    Plane2_paper = [-0.196589 -0.812143 0.239359 1.0].';
+
+
+    %using conic deriving from Q2 and Plane2
+
+    M = getPlaneSpan(Plane2_paper);
+    C_space = M.' * Q2 * M;
+
+    %try to project to Image
+    % assuming world reference frame aligned with the plane containing the
+    % conic -> points on plane are [x y 0 w].'
+    % I need 3 point correspondences from plane to image
+
+    P1_plane = [P1*M(:,1) P1*M(:,2) P1*M(:,3)];
+    P2_plane = [P2*M(:,1) P2*M(:,2) P2*M(:,3)];
+
+    C1 = inv(P1_plane).' * C_space * inv(P1_plane);
+    C2 = inv(P2_plane).' * C_space * inv(P2_plane);
     
-    Point1 = [748/21 1 1 1].';
-    Point2 = [769/21 1 71/92 1].';
-    Point3 = [748/21 2 -17/23 1].';
-
-    M1 = [Point1 Point2 Point3];
-    
-    C1 = M1.' * Q1 * M1;
-
-    x = sym('x',[1 4]).';
-    assume(x ~= 0);
-
-    eqns = Plane2.' * x == 0;
-
-    point = solve(eqns, x);
-    point = [point.x1 point.x2 point.x3 point.x4];
-
-    Point1 = point.';
-    Point2 = [point(1)+1 point(1,2) point(1,3)+(-Plane2(1,1))/Plane2(3,1) 1].';
-    Point3 = [point(1) point(1,2)+1 point(1,3)+(-Plane2(2,1))/Plane2(3,1) 1].';
-    
-
-    M2 = double([Point1 Point2 Point3]);
-    
-    C2 = M2.' * Q2 * M2;
-
-    for i=1:3
-        for j=1:3
-            C1(i,j) = C1(i,j)/C1(3,3);
-            C2(i,j) = C2(i,j)/C2(3,3);
-        end
-    end
-
-    %drawconic( C1, [ -100 100 -100 100 ], [ 0.1 0.1 ], 'b-' ), grid;
-    %drawconic( C2, [ -100 100 -100 100 ], [ 0.1 0.1 ], 'b-' ), grid; 
+%     Point1 = [748/21 1 1 1].';
+%     Point2 = [769/21 1 71/92 1].';
+%     Point3 = [748/21 2 -17/23 1].';
+% 
+%     M1 = [Point1 Point2 Point3];
+%     
+%     C1 = M1.' * Q1 * M1;
+% 
+%     x = sym('x',[1 4]).';
+%     assume(x ~= 0);
+% 
+%     eqns = Plane2.' * x == 0;
+% 
+%     point = solve(eqns, x);
+%     point = [point.x1 point.x2 point.x3 point.x4];
+% 
+%     Point1 = point.';
+%     Point2 = [point(1)+1 point(1,2) point(1,3)+(-Plane2(1,1))/Plane2(3,1) 1].';
+%     Point3 = [point(1) point(1,2)+1 point(1,3)+(-Plane2(2,1))/Plane2(3,1) 1].';
+%     
+% 
+%     M2 = double([Point1 Point2 Point3]);
+%     
+%     C2 = M2.' * Q2 * M2;
+% 
+%     for i=1:3
+%         for j=1:3
+%             C1(i,j) = C1(i,j)/C1(3,3);
+%             C2(i,j) = C2(i,j)/C2(3,3);
+%         end
+%     end
+% 
+%     %drawconic( C1, [ -100 100 -100 100 ], [ 0.1 0.1 ], 'b-' ), grid;
+%     %drawconic( C2, [ -100 100 -100 100 ], [ 0.1 0.1 ], 'b-' ), grid; 
 
 end
 %%
@@ -150,7 +168,8 @@ side1_plane2 = projection_centre1.' * Plane2;
 side2_plane2 = projection_centre2.' * Plane2;
 
 if side1_plane1*side2_plane1 > 0
-    Conic = conePlaneIntersection(A, Plane1);
+    Conic = conePlaneIntersection(B, Plane1);
+    plotSurfaceIntersection(B, Plane1)
 else 
     if side1_plane2 * side2_plane2 > 0
         Conic = conePlaneIntersection(A, Plane2);
@@ -160,7 +179,12 @@ else
 end
 
 %display result
-
+figure
+plotSurfaceIntersection(A,Plane2)
+hold on
+plotSurfaceIntersection(B,Plane2)
+hold on
+plotSurfaceIntersection(Q2, Plane2_paper)
 
 
 

@@ -45,7 +45,7 @@ function [H, hel] = imsurf(func, range, along)
     end
 
     FVC = isosurface(x, y, z, v, 0, isovalue);
-    h = patch(FVC, 'FaceColor', 'interp', 'EdgeColor', 'non');
+    h = patch(FVC, 'FaceColor', 'none', 'EdgeColor', 'non');
     
     view(3);
     

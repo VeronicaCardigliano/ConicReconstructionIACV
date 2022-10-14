@@ -21,11 +21,10 @@ plane = @(x,y,z)(a_p*x + b_p*y + c_p*z + d_p);
 
 range = [-10 10 -10 10 -10 10];
 
-figure
 
 [~, hel_q] = imsurf(quadric, range);
 [~, hel_p] = imsurf(plane, range);
 intercurve(hel_q, hel_p)
 hold on
-fimplicit3(quadric, range, 'EdgeColor','none',"FaceColor","cyan" , "FaceAlpha",0.6)
-fimplicit3(plane, 'EdgeColor','none',"FaceColor","yellow", "FaceAlpha",0.3);
+%fimplicit3(quadric, range, 'EdgeColor','none',"FaceColor","cyan" , "FaceAlpha",0.6)
+%fimplicit3(plane, 'EdgeColor','none',"FaceColor","none", "FaceAlpha",0.3);
