@@ -75,6 +75,8 @@ else
     M = getPlaneSpan(Plane2_paper);
     C_space = M.' * Q2 * M;
 
+    
+
     %try to project to Image
     % assuming world reference frame aligned with the plane containing the
     % conic -> points on plane are [x y 0 w].'
@@ -158,26 +160,33 @@ v2 = solve(eqns2, v2);
 Plane1 = sqrt(e(1)) * v1 + sqrt(-e(2)) * v2;
 Plane2 = sqrt(e(1)) * v1 - sqrt(-e(2)) * v2;
 %%
-projection_centre1 = null(P1);
-projection_centre2 = null(P2);
+o1 = null(P1);
+o2 = null(P2);
 
-side1_plane1 = projection_centre1.' * Plane1;
-side2_plane1 = projection_centre2.' * Plane1;
+o1 = o1 / o1(4);
+o2 = o2 / o2(4);
 
-side1_plane2 = projection_centre1.' * Plane2;
-side2_plane2 = projection_centre2.' * Plane2;
+dist_o1_plane1 = o1.' * Plane1;
+dist_o2_plane1 = o2.' * Plane1;
 
-if side1_plane1*side2_plane1 > 0
+dist_o1_plane2 = o1.' * Plane2;
+dist_o2_plane2 = o2.' * Plane2;
+
+if dist_o1_plane1*dist_o2_plane1 > 0
     Conic = conePlaneIntersection(B, Plane1);
+    figure
     plotSurfaceIntersection(B, Plane1)
+    
 else 
-    if side1_plane2 * side2_plane2 > 0
+    if dist_o1_plane2 * dist_o2_plane2 > 0
         Conic = conePlaneIntersection(A, Plane2);
+        figure
+        plotSurfaceIntersection(A, Plane2);
     else
         %give an error message
     end
 end
-
+%%
 %display result
 figure
 plotSurfaceIntersection(A,Plane2)
