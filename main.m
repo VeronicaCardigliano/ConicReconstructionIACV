@@ -1,27 +1,28 @@
 clear;
 clc;
 
-var = 0;
+var = 1;
 calculateCameraParams = 0;
 display = 0;
 
 if var == 1
-    image1 = imread('Photo/set4/image2.jpg');
-    image2 = imread('Photo/set4/image5.jpg');
+    image1 = imread('Photo/set5/image1.jpg');
+    image2 = imread('Photo/set5/image2.jpg');
     
-    calibrationImages = imageDatastore('Photo/calibrazione');
     
     if calculateCameraParams == 1
+        calibrationImages = imageDatastore('Photo/calibrazione');
+
         cameraParams = calibrationFunction(calibrationImages);
-        save saved_variables cameraParams -mat
+        save saved_variables.mat cameraParams -mat
     else
-        load saved_cameraParameters.mat;
+        load saved_variables.mat;
     end
 
     [P1, P2] = findExtrinsicParams(cameraParams, display);
-    
+
     %intrinsic = findIntrinsic(calibrationImages);
-    
+    %%
     imshow(image1);
     hold on;
     
@@ -72,8 +73,8 @@ else
 
     %using conic deriving from Q2 and Plane2
 
-    M = getPlaneSpan(Plane2_paper);
-    C_space = M.' * Q2 * M;
+    M = getPlaneSpan(Plane1_paper);
+    C_space = M.' * Q1 * M;
 
     
 
@@ -127,13 +128,14 @@ end
 %%
 
 A = P1.' * C1 * P1;
-B = P2.' * C2 * P2;
+B = P2.' * C1 * P2;
 
 lambda = computeLambda(A, B);
+delta = computeDelta(A, B);
 
 C = A + lambda*B;
 
-save saved_variables C1 C2 C P1 P2 -mat
+save saved_variables C1 C2 C P1 P2 A B lambda -mat
 %%
 
 e = eig(C);
@@ -157,8 +159,8 @@ eqns2 = [bho1(1,:)*v1 == 0, bho1(2,:)*v1 == 0, bho1(3,:)*v1 == 0, bho1(4,:)*v1 =
 v2 = solve(eqns2, v2);
 %}
 
-Plane1 = sqrt(e(1)) * v1 + sqrt(-e(2)) * v2;
-Plane2 = sqrt(e(1)) * v1 - sqrt(-e(2)) * v2;
+Plane1 = sqrt(-e(1)) * v1 + sqrt(e(2)) * v2;
+Plane2 = sqrt(-e(1)) * v1 - sqrt(e(2)) * v2;
 %%
 o1 = null(P1);
 o2 = null(P2);
@@ -173,9 +175,9 @@ dist_o1_plane2 = o1.' * Plane2;
 dist_o2_plane2 = o2.' * Plane2;
 
 if dist_o1_plane1*dist_o2_plane1 > 0
-    Conic = conePlaneIntersection(B, Plane1);
+    Conic = conePlaneIntersection(A, Plane1);
     figure
-    plotSurfaceIntersection(B, Plane1)
+    plotSurfaceIntersection(A, Plane1)
     
 else 
     if dist_o1_plane2 * dist_o2_plane2 > 0
@@ -189,11 +191,10 @@ end
 %%
 %display result
 figure
-plotSurfaceIntersection(A,Plane2)
+plotSurfaceIntersection(A,Plane1)
 hold on
-plotSurfaceIntersection(B,Plane2)
+plotSurfaceIntersection(B,Plane1)
 hold on
-plotSurfaceIntersection(Q2, Plane2_paper)
 
 
 
