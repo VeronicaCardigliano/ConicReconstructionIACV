@@ -1,7 +1,7 @@
 clear;
 clc;
 
-var = 1;
+var = 0;
 calculateCameraParams = 0;
 display = 0;
 
@@ -70,24 +70,33 @@ else
 
     Plane2_paper = [-0.196589 -0.812143 0.239359 1.0].';
 
-
-    %using conic deriving from Q2 and Plane2
-
-    M = getPlaneSpan(Plane1_paper);
-    C_space = M.' * Q1 * M;
-
+    % using conic deriving from Q1 and Plane1, first conic in space
     
+    M1 = getPlaneSpan(Plane1_paper);
+    C_space1 = M1.' * Q1 * M1;
 
     %try to project to Image
     % assuming world reference frame aligned with the plane containing the
     % conic -> points on plane are [x y 0 w].'
     % I need 3 point correspondences from plane to image
 
-    P1_plane = [P1*M(:,1) P1*M(:,2) P1*M(:,3)];
-    P2_plane = [P2*M(:,1) P2*M(:,2) P2*M(:,3)];
 
-    C1 = inv(P1_plane).' * C_space * inv(P1_plane);
-    C2 = inv(P2_plane).' * C_space * inv(P2_plane);
+    P1_plane_1 = [P1*M1(:,1) P1*M1(:,2) P1*M1(:,3)];
+    P2_plane_1 = [P2*M1(:,1) P2*M1(:,2) P2*M1(:,3)];
+
+    C1_1 = inv(P1_plane_1).' * C_space1 * inv(P1_plane_1);
+    C2_1 = inv(P2_plane_1).' * C_space1 * inv(P2_plane_1);
+
+    %using conic deriving from Q2 and Plane2
+
+    M2 = getPlaneSpan(Plane2_paper);
+    C_space2 = M2.' * Q2 * M2;
+
+    P1_plane_2 = [P1*M2(:,1) P1*M2(:,2) P1*M2(:,3)];
+    P2_plane_2 = [P2*M2(:,1) P2*M2(:,2) P2*M2(:,3)];
+
+    C1_2 = inv(P1_plane_2).' * C_space2 * inv(P1_plane_2);
+    C2_2 = inv(P2_plane_2).' * C_space2 * inv(P2_plane_2);
     
 %     Point1 = [748/21 1 1 1].';
 %     Point2 = [769/21 1 71/92 1].';
@@ -125,17 +134,17 @@ else
 %     %drawconic( C2, [ -100 100 -100 100 ], [ 0.1 0.1 ], 'b-' ), grid; 
 
 end
-%%
+%% use C1_1 and C2_1 or C1_2 and C2_2
 
-A = P1.' * C1 * P1;
-B = P2.' * C1 * P2;
+A = P1.' * C1_2 * P1;
+B = P2.' * C2_2 * P2;
 
 lambda = computeLambda(A, B);
 delta = computeDelta(A, B);
 
 C = A + lambda*B;
 
-save saved_variables C1 C2 C P1 P2 A B lambda -mat
+%save saved_variables C1 C2 C P1 P2 A B lambda -mat
 %%
 
 e = eig(C);
@@ -145,11 +154,9 @@ e = eig(C);
 %sols = solve(equation, mu);
 I = eye(4);
 
-bho1 = C - e(1)*I;
-bho2 = C - e(2)*I;
-
-v1 = null(bho1);
-v2 = null(bho2);
+% Singular values of A less than 0.001 are treated as zero (tolerance)
+v1 = null(C - e(1)*I, 0.001);
+v2 = null(C - e(2)*I, 0.001);
 
 %{
 eqns1 = [bho1(1,:)*v1 == 0, bho1(2,:)*v1 == 0, bho1(3,:)*v1 == 0, bho1(4,:)*v1 == 0];
@@ -158,9 +165,13 @@ v1 = solve(eqns1, v1);
 eqns2 = [bho1(1,:)*v1 == 0, bho1(2,:)*v1 == 0, bho1(3,:)*v1 == 0, bho1(4,:)*v1 == 0];
 v2 = solve(eqns2, v2);
 %}
-
-Plane1 = sqrt(-e(1)) * v1 + sqrt(e(2)) * v2;
-Plane2 = sqrt(-e(1)) * v1 - sqrt(e(2)) * v2;
+if e(1) < 0
+    Plane1 = sqrt(-e(1)) * v1 + sqrt(e(2)) * v2;
+    Plane2 = sqrt(-e(1)) * v1 - sqrt(e(2)) * v2;
+else
+    Plane1 = sqrt(e(1)) * v1 + sqrt(-e(2)) * v2;
+    Plane2 = sqrt(e(1)) * v1 - sqrt(-e(2)) * v2;
+end
 %%
 o1 = null(P1);
 o2 = null(P2);
@@ -191,9 +202,9 @@ end
 %%
 %display result
 figure
-plotSurfaceIntersection(A,Plane1)
+plotSurfaceIntersection(A,Plane2)
 hold on
-plotSurfaceIntersection(B,Plane1)
+plotSurfaceIntersection(B,Plane2)
 hold on
 
 

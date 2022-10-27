@@ -1,7 +1,7 @@
 function [P1, P2] = findExtrinsicParams(cameraParams, display)
 
-firstImg = imread('Photo\set4\image2.jpg');
-secondImg = imread('Photo\set4\image5.jpg');
+firstImg = imread('Photo/set4/image2.jpg');
+secondImg = imread('Photo/set4/image5.jpg');
 
 intrinsics = cameraParams.Intrinsics;
 
