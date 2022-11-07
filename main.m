@@ -134,10 +134,10 @@ else
 %     %drawconic( C2, [ -100 100 -100 100 ], [ 0.1 0.1 ], 'b-' ), grid; 
 
 end
-%% use C1_1 and C2_1 or C1_2 and C2_2
+%% use C1_1 and C2_1 or C1_2 and C2_2 for paper values
 
-A = P1.' * C1_2 * P1;
-B = P2.' * C2_2 * P2;
+A = P1.' * C1 * P1;
+B = P2.' * C2 * P2;
 
 lambda = computeLambda(A, B);
 delta = computeDelta(A, B);

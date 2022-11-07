@@ -1,4 +1,4 @@
-%computeLambdaGenerator
+%computeLambda and computeDelta Generator
 
 A = sym('A', [4 4]);
 B = sym('B', [4 4]);

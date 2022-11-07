@@ -1,10 +1,10 @@
 clc;
 clear;
 
-load Photo\calibrazione_tom\camera_tom.mat
+load Photo/calibrazione_tom/camera_tom.mat
 
-image1 = imread('Photo\set5\image1.jpg');
-image2 = imread('Photo\set5\image2.jpg');
+image1 = imread('Photo/set5/image1.jpg');
+image2 = imread('Photo/set5/image2.jpg');
 
 %%
 figure
