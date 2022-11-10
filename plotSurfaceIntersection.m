@@ -1,4 +1,4 @@
-function plotSurfaceIntersection(Q,plane)
+function plotSurfaceIntersection(Q,plane, range)
 
 a = Q(1,1);
 b = Q(2,2);
@@ -18,8 +18,6 @@ d_p = plane(4);
 
 quadric = @(x,y,z)(a*x.^2 + b*y.^2 + c*z.^2 + d*x.*y + e*x.*z + f*y.*z + g*x + h*y + l*z + m);
 plane = @(x,y,z)(a_p*x + b_p*y + c_p*z + d_p);
-
-range = [-10 10 -10 10 -10 10];
 
 
 [~, hel_q] = imsurf(quadric, range);
