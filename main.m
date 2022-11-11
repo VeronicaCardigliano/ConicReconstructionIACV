@@ -9,7 +9,7 @@ num_conics = 2;
 num_views = 2;
 Conics = ones(3,3);
 max = 10^10;
-epsilon = 0.5e-11;
+epsilon = 1e-25;
 %%
 if var == 1
     image1 = imread('Photo/set6/image1.jpg');
@@ -128,7 +128,17 @@ else
     C1_2 = inv(P1_plane).' * C_space2 * inv(P1_plane);
     C2_2 = inv(P2_plane).' * C_space2 * inv(P2_plane);
   
+
+    n_sample_points = 30;
+    noise = 2;
+
+    C1_1 = addNoise2Conic(C1_1, n_sample_points, noise);
+    C1_2 = addNoise2Conic(C1_2, n_sample_points, noise);
+    C2_1 = addNoise2Conic(C2_1, n_sample_points, noise);
+    C2_2 = addNoise2Conic(C2_2, n_sample_points, noise);
+
     Conics= [C1_1 C1_2 C2_1 C2_2];
+
  
 end
 %%
@@ -148,6 +158,8 @@ for i=1:(num_views - 1)
                 lambda = computeLambda(A, B);
                 delta = computeDelta(A, B);           
     
+                disp(delta);
+
                 if abs(delta) < epsilon                
     
                     C = A + lambda*B;
