@@ -19,10 +19,16 @@ d_p = plane(4);
 quadric = @(x,y,z)(a*x.^2 + b*y.^2 + c*z.^2 + d*x.*y + e*x.*z + f*y.*z + g*x + h*y + l*z + m);
 plane = @(x,y,z)(a_p*x + b_p*y + c_p*z + d_p);
 
+hold on
+axis equal
+fimplicit3(quadric, range, 'EdgeColor','none',"FaceColor","cyan" , "FaceAlpha",0.4)
+fimplicit3(plane, 'EdgeColor','none',"FaceColor","black", "FaceAlpha",0.1);
 
 [~, hel_q] = imsurf(quadric, range);
 [~, hel_p] = imsurf(plane, range);
 intercurve(hel_q, hel_p)
-hold on
-%fimplicit3(quadric, range, 'EdgeColor','none',"FaceColor","cyan" , "FaceAlpha",0.6)
-%fimplicit3(plane, 'EdgeColor','none',"FaceColor","none", "FaceAlpha",0.3);
+
+
+
+
+

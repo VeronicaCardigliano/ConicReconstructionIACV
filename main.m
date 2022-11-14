@@ -12,8 +12,8 @@ max = 10^10;
 epsilon = 1e-25;
 %%
 if var == 1
-    image1 = imread('Photo/set6/image1.jpg');
-    image2 = imread('Photo/set6/image2.jpg');
+    image1 = imread('Photo/set5/image1.jpg');
+    image2 = imread('Photo/set5/image2.jpg');
     
     calibrationImages = imageDatastore('Photo/calibrazione');
     
@@ -143,6 +143,8 @@ else
 end
 %%
 
+range = 5*[-10 10 -10 10 -10 10];
+
 for i=1:(num_views - 1)                                              
     for j=1:num_conics                                           
         for k=i+1:num_views
@@ -200,13 +202,13 @@ for i=1:(num_views - 1)
                     dist_o1_plane2 = o1.' * Plane2;
                     dist_o2_plane2 = o2.' * Plane2;
         
-                    range = 5*[-10 10 -10 10 -10 10];
+                    
                     
                     if (dist_o1_plane1*dist_o2_plane1) > 0
                         Conic = conePlaneIntersection(A, Plane1);
                         plotSurfaceIntersection(A, Plane1, range)
                         hold on
-                        %plotPlaneSurface(Plane1, 10, 10)
+                        %plotPlaneSurface(Plane1, range, 10)
                         %plotQuadricSurface(A, range)
                         %plotQuadricSurface(B,range)
                         %plotSurfaceIntersection(Q1, Plane1_paper, range)
@@ -215,7 +217,7 @@ for i=1:(num_views - 1)
                             Conic = conePlaneIntersection(A, Plane2);
                             plotSurfaceIntersection(A, Plane2, range)
                             hold on
-                            %plotPlaneSurface(Plane2, 10, 10)
+                            %plotPlaneSurface(Plane2, range, 10)
                             %plotQuadricSurface(A, range)
                             %plotQuadricSurface(B,range)
                             %plotSurfaceIntersection(Q1, Plane1_paper, range)
@@ -229,7 +231,7 @@ for i=1:(num_views - 1)
     end
 end
 
-plotQuadricSurface(Q1, range)
-plotPlaneSurface(Plane1_paper, 100, 10)
-plotQuadricSurface(Q2, range)
-plotPlaneSurface(Plane2_paper, 100, 10)
+% plotQuadricSurface(Q1, range)
+% plotPlaneSurface(Plane1_paper, range, 10)
+% plotQuadricSurface(Q2, range)
+% plotPlaneSurface(Plane2_paper, range, 10)
