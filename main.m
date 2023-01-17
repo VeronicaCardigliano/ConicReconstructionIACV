@@ -1,7 +1,8 @@
 clear;
 clc;
+close all;
 
-var = 0;
+var = 1;
 calculateCameraParams = 0;
 calculateExtrinsic = 0;
 display = 0;
@@ -9,7 +10,7 @@ num_conics = 2;
 num_views = 2;
 Conics = ones(3,3);
 max = 10^10;
-epsilon = 1e-25;
+epsilon = 1e-2;
 %%
 if var == 1
     image1 = imread('Photo/set5/image1.jpg');
@@ -21,7 +22,7 @@ if var == 1
         cameraParams = calibrationFunction(calibrationImages);
         save cameraParameters.mat -mat
     else
-        load saved_cameraParameters.mat;
+        load cameraParameters.mat;
     end
     
     if calculateExtrinsic == 1
@@ -143,7 +144,11 @@ else
 end
 %%
 
-range = 5*[-10 10 -10 10 -10 10];
+range = 1*[-10 10 -10 10 -10 10];
+
+figure
+
+fileID = fopen("Conic_and_Planes.txt", "w");
 
 for i=1:(num_views - 1)                                              
     for j=1:num_conics                                           
@@ -206,7 +211,8 @@ for i=1:(num_views - 1)
                     
                     if (dist_o1_plane1*dist_o2_plane1) > 0
                         Conic = conePlaneIntersection(A, Plane1);
-                        plotSurfaceIntersection(A, Plane1, range)
+                        plotSurfaceIntersection(A, "A",  Plane1, range, fileID)
+                        plotSurfaceIntersection(B, "B", Plane1, range, fileID)
                         hold on
                         %plotPlaneSurface(Plane1, range, 10)
                         %plotQuadricSurface(A, range)
@@ -215,7 +221,8 @@ for i=1:(num_views - 1)
                     else 
                         if (dist_o1_plane2 * dist_o2_plane2) > 0
                             Conic = conePlaneIntersection(A, Plane2);
-                            plotSurfaceIntersection(A, Plane2, range)
+                            plotSurfaceIntersection(A, "A",  Plane2, range, fileID)
+                            plotSurfaceIntersection(B, "B",  Plane2, range, fileID)
                             hold on
                             %plotPlaneSurface(Plane2, range, 10)
                             %plotQuadricSurface(A, range)
@@ -230,6 +237,8 @@ for i=1:(num_views - 1)
         end
     end
 end
+
+fclose(fileID);
 
 % plotQuadricSurface(Q1, range)
 % plotPlaneSurface(Plane1_paper, range, 10)
