@@ -1,4 +1,5 @@
 function C = getConicMatrix(x,y)
+    % extract the conic matrix from 5 points
     A = [x.^2 x.*y y.^2 x y ones(size(x))];
     N = null(A);
 

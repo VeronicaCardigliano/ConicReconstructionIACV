@@ -3,15 +3,15 @@ clear
 
 load Photo\calibrazione_tom\camera_tom.mat;
 
-im1 = imread("Photo\set7\im1.jpg");
-im2 = imread("Photo\set7\im2.jpg");
-im3 = imread("Photo\set7\im3.jpg");
-im4 = imread("Photo\set7\im4.jpg");
-im5 = imread("Photo\set7\im5.jpg");
-im6 = imread("Photo\set7\im6.jpg");
+im1 = imread("Photo\set5\image1.jpg");
+im2 = imread("Photo\set5\image2.jpg");
+% im3 = imread("Photo\set7\im3.jpg");
+% im4 = imread("Photo\set7\im4.jpg");
+% im5 = imread("Photo\set7\im5.jpg");
+% im6 = imread("Photo\set7\im6.jpg");
 %%
-images = [im1, im2, im3, im4, im5, im6];
-n_views = 6;
+images = [im1, im2];
+n_views = 2;
 
 Cameras = zeros([3 4*n_views]);
 [height, width, ~] = size(im1);
@@ -45,12 +45,12 @@ hold off;
 
 im1 = undistortImage(im1, cameraParams.Intrinsics);
 im2 = undistortImage(im2, cameraParams.Intrinsics);
-im3 = undistortImage(im3, cameraParams.Intrinsics);
-im4 = undistortImage(im4, cameraParams.Intrinsics);
-im5 = undistortImage(im5, cameraParams.Intrinsics);
-im6 = undistortImage(im6, cameraParams.Intrinsics);
+% im3 = undistortImage(im3, cameraParams.Intrinsics);
+% im4 = undistortImage(im4, cameraParams.Intrinsics);
+% im5 = undistortImage(im5, cameraParams.Intrinsics);
+% im6 = undistortImage(im6, cameraParams.Intrinsics);
 
-images = [im1, im2, im3, im4, im5, im6];
+images = [im1, im2];
 %%
 
 
@@ -82,7 +82,12 @@ for i=1:n_views
 end
 
 %%
-epsilon=1e-7;
+epsilon=1e-5;
+fileID = fopen("Conic_and_Planes.txt", "a+");
+
+if n_views == 2
+    deltaMatrix = zeros([n_conics n_conics]);
+end
 
 figure
 for i=1:(n_views - 1)                                              
@@ -108,6 +113,10 @@ for i=1:(n_views - 1)
     
                 disp ["delta"]
                 disp(delta);
+
+                if n_views == 2
+                    deltaMatrix(j,w) = delta;
+                end
 
                 if abs(delta) < epsilon                
     
@@ -163,17 +172,20 @@ for i=1:(n_views - 1)
                     
                     if (dist_o1_plane1*dist_o2_plane1) > 0
                         Conic = conePlaneIntersection(A, Plane1);
-                        plotSurfaceIntersection(A, Plane1, range)
+                        plotSurfaceIntersection(A,'A', Plane1, range, fileID)
+                        plotSurfaceIntersection(B,'B', Plane1, range, fileID)
+
                         hold on
                         %plotPlaneSurface(Plane1, range, 10)
                         %plotQuadricSurface(A, range)
                         %plotQuadricSurface(B,range)
                     else 
                         if (dist_o1_plane2 * dist_o2_plane2) > 0
-                            Conic = conePlaneIntersection(A, Plane2);
-                            %plotSurfaceIntersection(A, Plane2, range)
+                            Conic = conePlaneIntersection(A,'A', Plane2, fileID);
+                            plotSurfaceIntersection(A,'A', Plane2, range, fileID)
+                            plotSurfaceIntersection(B,'B', Plane2, range, fileID)
                             hold on
-                            plotPlaneSurface(Plane2, range, 10)
+                            %plotPlaneSurface(Plane2, range, 10)
                             %plotQuadricSurface(A, range)
                             %plotQuadricSurface(B,range)
                         else
