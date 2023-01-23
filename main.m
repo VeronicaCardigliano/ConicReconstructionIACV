@@ -2,21 +2,27 @@ clear;
 clc;
 close all;
 
-var = 1;
-calculateCameraParams = 0;
-calculateExtrinsic = 0;
-display = 0;
-num_conics = 2;
-num_views = 2;
+% parameters
+real_case = 1; % 1 if you want to start with a real image 0 if you want to try the synthetic data
+calculateCameraParams = 0; % 1 if you want to recalculate the intrinsic camera parameters
+calculateExtrinsic = 0; % 1 if you want to recalculate the extrinsic camera parameters
+display = 0; % 1 if you want to display the intermediate steps
+num_conics = 2; % number of conics in the images
+num_views = 2; % number of images
 Conics = ones(3,3);
 max = 10^10;
 epsilon = 1e-2;
+
 %%
-if var == 1
+% In the real case we load some photos and extract the images of the conics
+% by selecting 5 or more points
+if real_case == 1
     image1 = imread('Photo/set5/image1.jpg');
     image2 = imread('Photo/set5/image2.jpg');
     
     calibrationImages = imageDatastore('Photo/calibrazione');
+
+    % Camera calibration phase
     
     if calculateCameraParams == 1
         cameraParams = calibrationFunction(calibrationImages);
@@ -35,6 +41,9 @@ if var == 1
     image1 = undistortImage(image1, cameraParams);
     image2 = undistortImage(image2, cameraParams);
    %% 
+   % Showing images and asking 5 or more points to extract the image of
+   % each conic
+
     imshow(image1);
     hold on;
     
@@ -72,6 +81,8 @@ if var == 1
     %drawConic(C2_1,C2_2, image2);
       
 else
+    % Synthetic case
+
     P1 = [1.393757 -0.244708 -14.170794 368.0;
         10.624195 2.396275 -0.433595 202.0;
         0.002859 0.011811 -0.003481 1.0];
@@ -111,8 +122,6 @@ else
     C1_1 = inv(P1_plane).' * C_space1 * inv(P1_plane);
     C2_1 = inv(P2_plane).' * C_space1 * inv(P2_plane);
 
-    
-
     %using conic deriving from Q2 and Plane2
 
     M2 = getPlaneSpan(Plane2_paper);
@@ -143,6 +152,7 @@ else
  
 end
 %%
+% Range for visualization purposes
 
 range = 1*[-10 10 -10 10 -10 10];
 
@@ -150,11 +160,15 @@ figure
 
 fileID = fopen("Conic_and_Planes.txt", "w");
 
+% Testing all the possible combination of images in the n different views in
+% order to find the n images of the same conic.
+% Once we find the right conics we create the 
+
 for i=1:(num_views - 1)                                              
     for j=1:num_conics                                           
         for k=i+1:num_views
             for w=1:num_conics
-                first_idx = (i - 1) * num_conics * 3 + 1 + (j - 1) * 3; %-1 and +1 for stupid MATLAB indexing starting with 1
+                first_idx = (i - 1) * num_conics * 3 + 1 + (j - 1) * 3; 
                 second_idx = (k - 1) * num_conics * 3 + 1 + (w - 1) * 3;
                 C1 = Conics(:,first_idx:first_idx+2);
                 C2 = Conics(:, second_idx:second_idx+2);
@@ -207,8 +221,6 @@ for i=1:(num_views - 1)
                     dist_o1_plane2 = o1.' * Plane2;
                     dist_o2_plane2 = o2.' * Plane2;
         
-                    
-                    
                     if (dist_o1_plane1*dist_o2_plane1) > 0
                         Conic = conePlaneIntersection(A, Plane1);
                         plotSurfaceIntersection(A, "A",  Plane1, range, fileID)

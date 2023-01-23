@@ -1,5 +1,8 @@
 function plotSurfaceIntersection(Q, quadricName,plane, range, fileID)
-
+% Plots the intersaction between the quadric and the plane, since the
+% result is not particullarly readable it also add to a file called
+% "Conic_and_Planes" the equations in order to simply represent them using
+% some tool like "GeoGebra"
 a = Q(1,1);
 b = Q(2,2);
 c = Q(3,3);

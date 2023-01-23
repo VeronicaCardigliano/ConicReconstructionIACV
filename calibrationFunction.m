@@ -1,4 +1,6 @@
 function cameraParams = calibrationFunction(images)
+% Estimate camera intrinsic parameters by confronting some points on a
+% checkboard and the relative points captured in the image
 
 [imagePoints,boardSize] = detectCheckerboardPoints(images.Files);
 

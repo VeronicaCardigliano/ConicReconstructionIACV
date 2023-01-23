@@ -1,5 +1,7 @@
 function points = getPlaneSpan(plane)
-%defines plane as a matrix having as columns 3 points contained in it
+% Defines plane as a matrix having as columns 3 points contained in it (the
+% span)
+
 a = plane(1);
 b = plane(2);
 c = plane(3);

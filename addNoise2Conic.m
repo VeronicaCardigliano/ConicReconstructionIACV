@@ -1,5 +1,5 @@
 function C = addNoise2Conic(C, n_points, noise_power)
-    %samples points from conic C and adds a Gaussian noise
+    % Samples points from conic C and adds a Gaussian noise
 
 
     %get conic center
