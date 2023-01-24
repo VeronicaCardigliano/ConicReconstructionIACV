@@ -1,17 +1,20 @@
 clc
 clear
 
-load Photo\calibrazione_tom\camera_tom.mat;
+%load Photo\calibrazione_tom\camera_tom.mat;
+load cameraParamsVero.mat;
 
-im1 = imread("Photo\set5\image1.jpg");
-im2 = imread("Photo\set5\image2.jpg");
-% im3 = imread("Photo\set7\im3.jpg");
+im1 = imread("Photo/set8/im1.png");
+im2 = imread("Photo/set8/im2.png");
+im3 = imread("Photo/set8/im3.png");
 % im4 = imread("Photo\set7\im4.jpg");
 % im5 = imread("Photo\set7\im5.jpg");
 % im6 = imread("Photo\set7\im6.jpg");
 %%
-images = [im1, im2];
-n_views = 2;
+cameraParams = cameraParams_vero;
+
+images = [im1, im2, im3];
+n_views = 3;
 
 Cameras = zeros([3 4*n_views]);
 [height, width, ~] = size(im1);
@@ -45,17 +48,18 @@ hold off;
 
 im1 = undistortImage(im1, cameraParams.Intrinsics);
 im2 = undistortImage(im2, cameraParams.Intrinsics);
+im3 = undistortImage(im3, cameraParams.Intrinsics);
 % im3 = undistortImage(im3, cameraParams.Intrinsics);
 % im4 = undistortImage(im4, cameraParams.Intrinsics);
 % im5 = undistortImage(im5, cameraParams.Intrinsics);
 % im6 = undistortImage(im6, cameraParams.Intrinsics);
 
-images = [im1, im2];
+images = [im1, im2, im3];
 %%
 
 
 
-n_conics = 1;
+n_conics = 4;
 Conics = zeros([3 n_views*n_conics*3]);
 
 for i=1:n_views
@@ -82,7 +86,7 @@ for i=1:n_views
 end
 
 %%
-epsilon=1e-5;
+epsilon=1e-3;
 fileID = fopen("Conic_and_Planes.txt", "a+");
 
 if n_views == 2
