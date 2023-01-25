@@ -20,7 +20,7 @@ n_conics = 2;
 
 %% COMPUTE INTRINSICS PARAMETERS
 if calibrate_intrinsics == 1
-    calibrationImages = imageDatastore('Photo/calibrazione');
+    calibrationImages = imageDatastore('Photo/calibrazione_vero');
     cameraParams = calibrationFunction(calibrationImages);
     save cameraParameters.mat cameraParams -mat
 else
