@@ -1,6 +1,4 @@
 function plotQuadricSurface(Q, range)
-
-
 a = Q(1,1);
 b = Q(2,2);
 c = Q(3,3);
