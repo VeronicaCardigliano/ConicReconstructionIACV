@@ -1,4 +1,5 @@
 # ConicReconstructionIACV
+Project for Image Analysis and Computer Vision course at Politecnico di Milano AA 2021-2022.
 
 ### Instructions
 The repository contains two notebooks for the experiments:
